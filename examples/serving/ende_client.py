@@ -8,6 +8,7 @@ import pyonmttok
 import tensorflow as tf
 
 import grpc
+import datetime
 
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2_grpc
@@ -98,9 +99,17 @@ def main():
   tokenizer = pyonmttok.Tokenizer("none", sp_model_path=args.sentencepiece_model)
 
   batch_input = ["Hello world!", "My name is John.", "I live on the West coast."]
-  batch_output = translate(stub, args.model_name, batch_input, tokenizer, timeout=args.timeout)
-  for input_text, output_text in zip(batch_input, batch_output):
-    print("{} ||| {}".format(input_text, output_text))
+  for i in range(0,50):
+    start = datetime.datetime.now()
+    batch_output = translate(stub, args.model_name, batch_input, tokenizer, timeout=args.timeout)
+    for input_text, output_text in zip(batch_input, batch_output):
+      print("{} ||| {}".format(input_text, output_text))
+    end = datetime.datetime.now()
+    elapsed = end - start
+    print(elapsed.seconds,":",elapsed.microseconds)
+  # batch_output = translate(stub, args.model_name, batch_input, tokenizer, timeout=args.timeout)
+  # for input_text, output_text in zip(batch_input, batch_output):
+  #   print("{} ||| {}".format(input_text, output_text))
 
 
 if __name__ == "__main__":
