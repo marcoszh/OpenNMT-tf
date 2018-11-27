@@ -104,7 +104,7 @@ def main():
   for bs in (1,2,4,8,16,32,64):
     print("batch_size: "+str(bs))
     batch_input = sample * bs
-    print(batch_input.shape)
+    print(len(batch_input))
     start = datetime.datetime.now()
     for i in range(0,50):
       batch_output = translate(stub, args.model_name, batch_input, tokenizer, timeout=args.timeout)
