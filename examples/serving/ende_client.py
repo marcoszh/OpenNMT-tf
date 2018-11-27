@@ -90,7 +90,7 @@ def main():
                       help="model server host")
   parser.add_argument("--port", type=int, default=9000,
                       help="model server port")
-  parser.add_argument("--timeout", type=float, default=10.0,
+  parser.add_argument("--timeout", type=float, default=100000.0,
                       help="request timeout")
   args = parser.parse_args()
 
@@ -98,15 +98,20 @@ def main():
   stub = prediction_service_pb2_grpc.PredictionServiceStub(channel)
   tokenizer = pyonmttok.Tokenizer("none", sp_model_path=args.sentencepiece_model)
 
-  batch_input = ["Hello world!", "My name is John.", "I live on the West coast."]
-  for i in range(0,50):
+  sample = ["Hello world! My name is John. I live on the West coast.",]
+
+  for bs in (1,2,4,8,16,32,64):
+    print("batch_size: "+str(bs))
+    batch_input = sample * bs
     start = datetime.datetime.now()
-    batch_output = translate(stub, args.model_name, batch_input, tokenizer, timeout=args.timeout)
-    for input_text, output_text in zip(batch_input, batch_output):
-      print("{} ||| {}".format(input_text, output_text))
+    for i in range(0,50):
+      batch_output = translate(stub, args.model_name, batch_input, tokenizer, timeout=args.timeout)
+      for input_text, output_text in zip(batch_input, batch_output):
+        print("{} ||| {}".format(input_text, output_text))
     end = datetime.datetime.now()
     elapsed = end - start
     print(elapsed.seconds,":",elapsed.microseconds)
+
   # batch_output = translate(stub, args.model_name, batch_input, tokenizer, timeout=args.timeout)
   # for input_text, output_text in zip(batch_input, batch_output):
   #   print("{} ||| {}".format(input_text, output_text))
