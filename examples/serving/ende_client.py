@@ -99,15 +99,17 @@ def main():
   tokenizer = pyonmttok.Tokenizer("none", sp_model_path=args.sentencepiece_model)
 
   sample = ["Hello world! My name is John. I live on the West coast.",]
+  batch_output = translate(stub, args.model_name, sample*16, tokenizer, timeout=args.timeout)
 
   for bs in (1,2,4,8,16,32,64):
     print("batch_size: "+str(bs))
     batch_input = sample * bs
+    print(batch_input.shape)
     start = datetime.datetime.now()
     for i in range(0,50):
       batch_output = translate(stub, args.model_name, batch_input, tokenizer, timeout=args.timeout)
-      for input_text, output_text in zip(batch_input, batch_output):
-        print("{} ||| {}".format(input_text, output_text))
+      # for input_text, output_text in zip(batch_input, batch_output):
+      #   print("{} ||| {}".format(input_text, output_text))
     end = datetime.datetime.now()
     elapsed = end - start
     print(elapsed.seconds,":",elapsed.microseconds)
